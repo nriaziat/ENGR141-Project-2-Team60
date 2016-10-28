@@ -10,81 +10,90 @@ def dictionary(file):
             dict[x] = y
     return(dict)
     
-def cleaner(file, type, a1, a0):
+def residualStDev(dict, type, a0, a1):
     residList = []
-    with open(file) as rawData:
-        for line in rawData:
-            if type == 'linear':
-                x = float(line.split()[0])
-                y = float(line.split()[1])
-                yPrediction = a0 + (a1 * x)
-                residList.append(y - yPrediction) 
-    stDev = stdev(residList, None)
+    for item in dict:
+        x = item
+        y = dict[item]
+        if type == 'linear':
+            yPrediction = a0 + (a1 * x)
+            residList.append(y - yPrediction) 
+        elif type == 'exponential':
+            yPrediction = math.exp(a0 + (a1 * x))
+            residList.append(y - yPrediction) 
+        elif type == 'power':
+            yPrediction = math.exp(a0) * (x ** a1)
+            residList.append(y - yPrediction) 
+    stDev = stdev(residList)
     return(stDev)
 
-def dataHandling (file, type):
+def regression(dict, type):
     # figure out the linear regression
-    cleanDataList = {}
     n = 0
     sumx = 0
     sumy = 0
     sumxy = 0
     sumx2 = 0
-    with open(file) as rawData:
-        for line in rawData:
-            if type == 'linear':
-                x = float(line.split()[0])
-                y = float(line.split()[1])
-            elif type == 'exponential':
-                x = float(line.split()[0])
-                y = math.log(float(line.split()[1]))
-            elif type == 'power':
-                x = math.log(float(line.split()[0]))
-                y = math.log(float(line.split()[1]))
-            n += 1
-            sumxy += x * y
-            sumx += x
-            sumy += y
-            sumx2 += x ** 2
-    # file closed
+    for item in dict:
+        if type == 'linear':
+            x = item
+            y = dict[x]           
+        elif type == 'exponential':
+            x = item
+            y = math.log(dict[x])
+        elif type == 'power':
+            x = math.log(item)
+            y = math.log(dict[item])
+        n += 1
+        sumxy += x * y
+        sumx += x
+        sumy += y
+        sumx2 += x ** 2
+    print(type, n, sumxy, sumx, sumy, sumx2)
     a0 = (sumy * sumx2 - sumx * sumxy) / (n * sumx2 - sumx * sumx)
     a1 = (n * sumxy - sumx * sumy) / (n * sumx2 - sumx * sumx)
-    stDev = cleaner(file, type, a1, a0)
-    with open(file) as rawData:
-        for line in rawData:
-            if type == "linear":
-                x = float(line.split()[0])
-                y = float(line.split()[1])
-                yPrediction = a0 + (a1 * x)
-                if abs(y - yPrediction) < 2 * stDev:
-                    cleanDataList[x] = y
-    print(cleanDataList)
-                    
+    return(a0, a1)
+ 
+def cleaner(dict, type, coeff):
+    a0 = coeff[0]
+    a1 = coeff[1]
+    cleanDataDict = {}
+    dirtyData = {}
+    stDev = residualStDev(dict, type, a0, a1)
+    for item in dict:
+        x = item
+        y = dict[item]
+        if type == "linear":
+             yPrediction = a0 + (a1 * x)
+             if abs(y - yPrediction) < 2 * stDev:
+                cleanDataDict[x] = y
+            else:
+                dirtyData[x] = y
+        elif type == "exponential":
+            yPrediction = math.exp(a0 + (a1 * x))
+            if abs(y - yPrediction) < 2 * stDev:
+                cleanDataDict[x] = y
+            else:
+                dirtyData[x] = y
+        elif type == "power":
+            yPrediction = math.exp(a0) * (x ** a1)
+            if abs(y - yPrediction) < 2 * stDev:
+                cleanDataDict[x] = y
+            else:
+                dirtyData[x] = y
+    print(dirtyData)
+    return(cleanDataDict)
+   
 def main ():
     volume = input('Input part volume in cm^3: ')
     tolerance = input('Input part tolerance in mm: ')
-    speedCoeffs = dataHandling('project2Speed.txt', 'linear')
-    apertureCoeffs = dataHandling('project2Aperture.txt', 'exponential')
-    temperatureCoeffs = dataHandling('project2Temperature.txt', 'power')
-    """print(speedCoeffs)
-    print(apertureCoeffs)
-    print(temperatureCoeffs)
-    print(math.exp(apertureCoeffs[0]))
-    print(math.exp(temperatureCoeffs[0]))"""
+    speedCoeffs = regression(cleaner(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')), "linear")
+    apertureCoeffs = regression(cleaner(dictionary('project2Aperture.txt'), 'exponential', regression(dictionary('project2Aperture.txt'), 'exponential')), "exponential")
+    temperatureCoeffs = regression(cleaner(dictionary('project2Temperature.txt'), 'power', regression(dictionary('project2Temperature.txt'), 'power')), "power")
+    print("Speed Coefficients: ", speedCoeffs)
+    print("Aperature Coefficients: ", apertureCoeffs)
+    print("Temperature Coefficients: ", temperatureCoeffs)
 
-    
 main()
-
-
-
-
-
-
-'''
-        for line in rawData:
-            speed = float(line.split()[0])
-            error = float(line.split()[1])
-            print('%f, %f' %(speed, error))
-            sumyx += speed * error
-            sumx2 += speed ** 2
-        pretty much a test to make sure things work'''
+   
+#residualStDev(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')[0], regression(dictionary('project2Speed.txt'), 'linear')[1])
