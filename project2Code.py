@@ -1,4 +1,4 @@
-import math
+from math import exp, log
 from statistics import stdev
 
 def dictionary(file):
@@ -28,10 +28,10 @@ def residualStDev(dict, type, a0, a1):
             yPrediction = a0 + (a1 * x)
             residList.append(y - yPrediction) 
         elif type == 'exponential':
-            yPrediction = math.exp(a0 + (a1 * x))
+            yPrediction = exp(a0 + (a1 * x))
             residList.append(y - yPrediction) 
         elif type == 'power':
-            yPrediction = math.exp(a0) * (x ** a1)
+            yPrediction = exp(a0) * (x ** a1)
             residList.append(y - yPrediction) 
     stDev = stdev(residList)
     return(stDev)
@@ -49,10 +49,10 @@ def regression(dict, type):
             y = dict[x]           
         elif type == 'exponential':
             x = item
-            y = math.log(dict[x])
+            y = log(dict[x])
         elif type == 'power':
-            x = math.log(item)
-            y = math.log(dict[item])
+            x = log(item)
+            y = log(dict[item])
         n += 1
         sumxy += x * y
         sumx += x
@@ -79,30 +79,35 @@ def cleaner(dict, type, coeff):
             else:
                 dirtyData[x] = y
         elif type == "exponential":
-            yPrediction = math.exp(a0 + (a1 * x))
+            yPrediction = exp(a0 + (a1 * x))
             if abs(y - yPrediction) < 2 * stDev:
                 cleanDataDict[x] = y
             else:
                 dirtyData[x] = y
         elif type == "power":
-            yPrediction = math.exp(a0) * (x ** a1)
+            yPrediction = exp(a0) * (x ** a1)
             if abs(y - yPrediction) < 2 * stDev:
                 cleanDataDict[x] = y
             else:
                 dirtyData[x] = y
-    print("Dirty Data: ", type, " : "" dirtyData)
+    print("Dirty Data: ", type, " : ", dirtyData)
     return(cleanDataDict)
    
-def main ():
+def coefficients():
     volume = input('Input part volume in cm^3: ')
     tolerance = input('Input part tolerance in mm: ')
-    speedCoeffs = regression(cleaner(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')), "linear")
-    apertureCoeffs = regression(cleaner(dictionary('project2Aperture.txt'), 'exponential', regression(dictionary('project2Aperture.txt'), 'exponential')), "exponential")
-    temperatureCoeffs = regression(cleaner(dictionary('project2Temperature.txt'), 'power', regression(dictionary('project2Temperature.txt'), 'power')), "power")
+    speedCoeffs = regression(cleaner(dictionary('project2Speed.txt'),
+        'linear', regression(dictionary('project2Speed.txt'), 'linear')), "linear")
+    apertureCoeffs = regression(cleaner(dictionary('project2Aperture.txt'), 
+        'exponential', regression(dictionary('project2Aperture.txt'), 'exponential')), "exponential")
+    temperatureCoeffs = regression(cleaner(
+        dictionary('project2Temperature.txt'), 'power', regression(dictionary(
+            'project2Temperature.txt'), 'power')), "power")
     print("Speed Coefficients: ", speedCoeffs)
     print("Aperature Coefficients: ", apertureCoeffs)
     print("Temperature Coefficients: ", temperatureCoeffs)
+    
 
-main()
+coefficients()
    
 #residualStDev(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')[0], regression(dictionary('project2Speed.txt'), 'linear')[1])
