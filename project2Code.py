@@ -9,6 +9,15 @@ def dictionary(file):
             y = float(line.split()[1])
             dict[x] = y
     return(dict)
+
+def maxOffset(dict):
+	offset = 0
+	for item in dict:
+		if item < 0:
+			if abs(item) > offset:
+				offset = abs(item)
+	return(offset)
+	
     
 def residualStDev(dict, type, a0, a1):
     residList = []
@@ -49,7 +58,6 @@ def regression(dict, type):
         sumx += x
         sumy += y
         sumx2 += x ** 2
-    print(type, n, sumxy, sumx, sumy, sumx2)
     a0 = (sumy * sumx2 - sumx * sumxy) / (n * sumx2 - sumx * sumx)
     a1 = (n * sumxy - sumx * sumy) / (n * sumx2 - sumx * sumx)
     return(a0, a1)
@@ -60,12 +68,13 @@ def cleaner(dict, type, coeff):
     cleanDataDict = {}
     dirtyData = {}
     stDev = residualStDev(dict, type, a0, a1)
+    offset = maxOffset(dict)
     for item in dict:
-        x = item
+        x = item + offset
         y = dict[item]
         if type == "linear":
-             yPrediction = a0 + (a1 * x)
-             if abs(y - yPrediction) < 2 * stDev:
+            yPrediction = a0 + (a1 * x)
+            if abs(y - yPrediction) < 2 * stDev:
                 cleanDataDict[x] = y
             else:
                 dirtyData[x] = y
@@ -81,7 +90,7 @@ def cleaner(dict, type, coeff):
                 cleanDataDict[x] = y
             else:
                 dirtyData[x] = y
-    print(dirtyData)
+    print("Dirty Data: ", type, " : "" dirtyData)
     return(cleanDataDict)
    
 def main ():
