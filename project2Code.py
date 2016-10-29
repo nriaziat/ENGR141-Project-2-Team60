@@ -90,23 +90,65 @@ def cleaner(dict, type, coeff):
                 cleanDataDict[x] = y
             else:
                 dirtyData[x] = y
-    print("Dirty Data: ", type, " : ", dirtyData)
+    print("Dirty Data: ", type, " : \n", dirtyData)
     return(cleanDataDict)
    
-def coefficients():
-    volume = input('Input part volume in cm^3: ')
-    tolerance = input('Input part tolerance in mm: ')
-    speedCoeffs = regression(cleaner(dictionary('project2Speed.txt'),
-        'linear', regression(dictionary('project2Speed.txt'), 'linear')), "linear")
-    apertureCoeffs = regression(cleaner(dictionary('project2Aperture.txt'), 
-        'exponential', regression(dictionary('project2Aperture.txt'), 'exponential')), "exponential")
-    temperatureCoeffs = regression(cleaner(
-        dictionary('project2Temperature.txt'), 'power', regression(dictionary(
-            'project2Temperature.txt'), 'power')), "power")
-    print("Speed Coefficients: ", speedCoeffs)
-    print("Aperature Coefficients: ", apertureCoeffs)
-    print("Temperature Coefficients: ", temperatureCoeffs)
+def dataHandling(file, regType):
+    data = dictionary(file)
+    initialReg = regression(data, regType)
+    initA0 = initialReg[0]
+    initialA1 = initialReg[1]
+    cleanData = cleaner(data, regType, initialReg)
+    finalReg = regression(cleanData, regType)
+    return(finalReg)
     
+def coefficients():
+    speedCoeffs = dataHandling('project2Speed.txt','linear'))
+    apertureCoeffs = dataHandling('project2Aperture.txt', 'exponential')
+    temperatureCoeffs = dataHandling('project2Temperature.txt', 'power')
+    return(speedCoeffs, apertureCoeffs, temperatureCoeffs)
+
+def inputs():
+    volume = float(input("Enter print volume in cubic centimeters: ")
+    tolerance = float(input("Enger print tolerance in centimeters: ")
+    return(volume, tolerance)
+    
+def speedError(a0, a1, headSpeed):
+    speedError = a0 + a1* headSpeed 
+    return(speedError)
+
+def aperatureError(a0, a1, aperature):
+    aperatureError = exp(a0 + (a1 * aperature))
+    return(aperatureError)
+
+def temperatureError(a0, a1, temp):
+    temperatureError = exp(a0) * temp ** a1
+    
+def error(speedError, aperatureError, temperatureError)
+    error = speedError + aperatureError + temperatureError
+    return(error)
+    
+def printingTime(volume, headSpeed, aperature):
+    printingTime = volume / (headSpeed * aperature)
+    return(printingTime)
+    
+def cureTime(temp):
+    if temp >= 4 and temp <= 36:
+        cureTime = 1570 / temp + 20 
+    else:
+        cureTime = 10000000
+    return(cureTime)
+
+def productionTime(printingTime, cureTime):
+    if printingTime >= cureTime:
+        productionTime = printingTime + 20
+    elif printingTime < cureTime:
+        productionTime = cureTime
+    return(productionTime)
+    
+def cost(volume, productionTime)
+    cost = 500 * volume + 18 * productionTime
+    return(cost)
 
 coefficients()
    
