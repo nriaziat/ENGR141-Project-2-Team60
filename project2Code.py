@@ -90,7 +90,7 @@ def cleaner(dict, type, coeff):
                 cleanDataDict[x] = y
             else:
                 dirtyData[x] = y
-    print("Dirty Data: ", type, " : \n", dirtyData)
+    #print("Dirty Data: ", type, " : \n", dirtyData)
     return(cleanDataDict)
    
 def dataHandling(file, regType):
@@ -103,33 +103,40 @@ def dataHandling(file, regType):
     return(finalReg)
     
 def coefficients():
-    speedCoeffs = dataHandling('project2Speed.txt','linear'))
+    speedCoeffs = dataHandling('project2Speed.txt','linear')
     apertureCoeffs = dataHandling('project2Aperture.txt', 'exponential')
     temperatureCoeffs = dataHandling('project2Temperature.txt', 'power')
-    return(speedCoeffs, apertureCoeffs, temperatureCoeffs)
+    return(speedCoeffs[0], speedCoeffs[1], apertureCoeffs[0], apertureCoeffs[1], temperatureCoeffs[0], temperatureCoeffs[1])
 
 def inputs():
-    volume = float(input("Enter print volume in cubic centimeters: ")
-    tolerance = float(input("Enger print tolerance in centimeters: ")
+    volume = float(input("Enter print volume in cubic centimeters: "))
+    tolerance = float(input("Enger print tolerance in centimeters: "))
     return(volume, tolerance)
     
-def speedError(a0, a1, headSpeed):
-    speedError = a0 + a1* headSpeed 
+def speedError(coefficients, headSpeed):
+    a0 = coefficients[0]
+    a1 = coefficients[1]
+    speedError = a0 + a1 * headSpeed 
     return(speedError)
 
-def aperatureError(a0, a1, aperature):
-    aperatureError = exp(a0 + (a1 * aperature))
-    return(aperatureError)
+def apertureError(coefficients, aperture):
+    a0 = coefficients[0]
+    a1 = coefficients[1]
+    apertureError = exp(a0 + (a1 * aperture))
+    return(apertureError)
 
-def temperatureError(a0, a1, temp):
+def temperatureError(coefficients, temp):
+    a0 = coefficients[0]
+    a1 = coefficients[1]
     temperatureError = exp(a0) * temp ** a1
+    return(temperatureError)
     
-def error(speedError, aperatureError, temperatureError)
-    error = speedError + aperatureError + temperatureError
+def errorFunc(speedError, apertureError, temperatureError):
+    error = speedError + apertureError + temperatureError
     return(error)
     
-def printingTime(volume, headSpeed, aperature):
-    printingTime = volume / (headSpeed * aperature)
+def printTime(volume, headSpeed, aperture):
+    printingTime = volume / (headSpeed * aperture)
     return(printingTime)
     
 def cureTime(temp):
@@ -141,15 +148,43 @@ def cureTime(temp):
 
 def productionTime(printingTime, cureTime):
     if printingTime >= cureTime:
-        productionTime = printingTime + 20
+        prodTime = printingTime + 20
     elif printingTime < cureTime:
-        productionTime = cureTime
-    return(productionTime)
+        prodTime = cureTime
+    return(prodTime)
     
-def cost(volume, productionTime)
-    cost = 500 * volume + 18 * productionTime
-    return(cost)
+def costFunc(volume, productionTime):
+    c = 500 * volume + 18 * productionTime
+    return(c)
 
-cost(input()[0], productionTime(printingTime(input()[0], headSpeed, aperature), cureTime(temp))
-error(speedError(coefficients()[:2], headSpeed), aperatureError(coefficients()[2:4], aperature), temperatureError(coefficients()[4:6], temp))   
+def minimize(constraint, coefficients):
+    volume = constraint[0]
+    tolerance = constraint[1]
+    n = 0 
+    temp = 4
+    aperture = .01
+    headSpeed = .5
+    cost = 10000000
+    error = 10000000
+    speedCoeffs = coefficients[0:2]
+    apertureCoeffs = coefficients[2:4]
+    temperatureCoeffs = coefficients[4:6]
+    while n < 1000:
+        costNew = costFunc(volume, productionTime(printTime(volume, headSpeed, aperture), cureTime(temp)))
+        errorNew =  errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
+        if costNew < cost and errorNew < tolerance:
+            cost = costNew
+            error = errorNew
+        elif costNew < cost and errorNew > tolerance:
+            aperture -= .01
+            headSpeed -= .01
+        elif costNew > cost and errorNew < tolerance:
+            aperture += .01
+            headSpeed += .01
+        else:
+            return(aperture, headSpeed)
+        n += 1
+         
+minimize(inputs(), coefficients())
+
 #residualStDev(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')[0], regression(dictionary('project2Speed.txt'), 'linear')[1])
