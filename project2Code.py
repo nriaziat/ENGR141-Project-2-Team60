@@ -266,10 +266,12 @@ def minimize(constraint, coefficients):
     tempVals = range(40, 360)
     speedVals = range(1, 30)
     
-    for aperture in apertureVals:
+    print("Phase 1 optimization in progress...")
     
+    for aperture in apertureVals:
+
         aperture = aperture / 10
-        print(aperture, "...")
+        #print(aperture, "...")
         for headSpeed in speedVals:
         
             headSpeed = headSpeed / 10
@@ -289,14 +291,20 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
+    if cost == 1000000 and error > tolerance:
+    
+        return("Error: tolerance could not be reached.")
+                    
     apertureVals  = range(((int(100 * apertureOptimized)) - 10), (int(100 *apertureOptimized)) + 10)
     tempVals = range(((int(100 * tempOptimized)) - 10), (int(100 * tempOptimized)) + 10)
     speedVals = range(((int(100 * speedOptimized)) - 10), (int(100 * speedOptimized)) + 10)
     
-    for aperture in apertureVals:
+    print("Phase 2 optimization in progress...")
     
+    for aperture in apertureVals:
+         
         aperture = aperture / 100
-        print(aperture, "...")
+        #print(aperture, "...")
         for headSpeed in speedVals:
         
             headSpeed = headSpeed / 100
@@ -309,23 +317,28 @@ def minimize(constraint, coefficients):
                 error = errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
                 
                 if costNew < cost and error < tolerance:
-                    print("yay")
+                    #print("yay")
                     cost = costNew
                     errorNew = error
                     apertureOptimized = aperture
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
-    print(apertureOptimized, tempOptimized, speedOptimized)
+    if cost == 1000000 and error > tolerance:
     
-    apertureVals  = range((int(1000 *apertureOptimized)) - 100, (int(1000 *apertureOptimized)) + 100)
-    tempVals = range((int(1000 * tempOptimized)) - 100, (int(100 * tempOptimized)) + 100)
-    speedVals = range((int(1000 * speedOptimized)) - 100, (int(100 * speedOptimized)) + 100)
+        return("Error: tolerance could not be reached.")                
+    #print(apertureOptimized, tempOptimized, speedOptimized)
     
+    apertureVals  = range((int(1000 * apertureOptimized)) - 100, (int(1000 * apertureOptimized)) + 100)
+    tempVals = range((int(1000 * tempOptimized)) - 100, (int(1000 * tempOptimized)) + 100)
+    speedVals = range((int(1000 * speedOptimized)) - 100, (int(1000 * speedOptimized)) + 100)
+    
+    print("Final optimization in progress...")
+
     for aperture in apertureVals:
-    
+        
         aperture = aperture / 1000
-        print(aperture, "...")
+        #print(aperture, "...")
         for headSpeed in speedVals:
         
             headSpeed = headSpeed / 1000
@@ -338,17 +351,18 @@ def minimize(constraint, coefficients):
                 error = errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
                 
                 if costNew < cost and error < tolerance:
-                    print("valid")
+                    #print("valid")
                     cost = costNew
                     errorNew = error
                     apertureOptimized = aperture
                     tempOptimized = temp
-                    speedOptimized = headSpeed    
+                    speedOptimized = headSpeed 
      
-    if cost == 1000000:
-        return("error")
+    if cost == 1000000 and error > tolerance:
+        return("Error: tolerance could not be reached.")
     else:
-        return("Cost = :", cost, "Error = : ", errorNew, "Temp = : ", tempOptimized, "Aperture = : ", apertureOptimized, "Speed = : ", speedOptimized)
+        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.2f degreec Celsius, with an aperture of %.2f mm and a speed of %.2f cm/s." 
+            % (cost, errorNew, tempOptimized, apertureOptimized, speedOptimized))
     
 print(minimize(inputs(), coefficients()))
 
