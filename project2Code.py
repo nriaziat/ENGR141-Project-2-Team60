@@ -150,6 +150,6 @@ def cost(volume, productionTime)
     cost = 500 * volume + 18 * productionTime
     return(cost)
 
-coefficients()
-   
+cost(input()[0], productionTime(printingTime(input()[0], headSpeed, aperature), cureTime(temp))
+error(speedError(coefficients()[:2], headSpeed), aperatureError(coefficients()[2:4], aperature), temperatureError(coefficients()[4:6], temp))   
 #residualStDev(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')[0], regression(dictionary('project2Speed.txt'), 'linear')[1])
