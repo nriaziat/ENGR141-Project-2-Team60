@@ -30,8 +30,7 @@ def maxOffset(dict):
 				offset = abs(item)
                 
 	return(offset)
-	
-    
+	   
 def residualStDev(dict, type, a0, a1):
 
     residList = []
@@ -170,7 +169,7 @@ def coefficients():
 def inputs():
 
     volume = float(input("Enter print volume in cubic centimeters: "))
-    tolerance = float(input("Enter print tolerance in centimeters: "))
+    tolerance = float(input("Enter print tolerance in millimeters: "))
     
     return(volume, tolerance)
     
@@ -207,13 +206,15 @@ def errorFunc(speedError, apertureError, temperatureError):
     
     return(error)
 
-def gradErrorFunc(coefficients, headSpeed, aperture, temp)
+def gradErrorFunc(coefficients, aperture, temp):
+
     a0 = coefficients[0]
     a1 = coefficients[1]
     a2 = coefficients[2]
     a3 = coefficients[3]
     a4 = coefficients[4]
     a5 = coefficients[5]
+    
     gradient = [a1, a3 * exp(a2 + a3 * aperture), a5 * exp(a4) * temp ** (a5 - 1)]
     return(gradient)
     
@@ -255,16 +256,18 @@ def costFunc(volume, productionTime):
 
 def gradCostFunc(temp, volume, aperture, headSpeed):
 
-    if printingTime  >= cureTime
+    if printingTime  >= cureTime:
         grad = [-18 * volume / ((headSpeed ** 2) * aperture), -18 * volume / (headSpeed * (aperture ** 2)), 0]
     else:
         grad = [-18 * 1570 / temp ** 2 , 0, 0]
     return(grad)
     
-def lagrangeMultiplier(gradF, gradG, tolerance):
+def lagrangeMultiplier(gradF, gradG, tolerance, headSpeed, aperture, temp):
 
-    tolerance >= speedError + apertureError + temperatureError
+    error = [speedError(headSpeed), apertureError(aperture), temperatureError(temp)]
+    error <= tolerance
     gradF = lamda * gradG
+
 
 def minimize(constraint, coefficients):
 
@@ -384,7 +387,7 @@ def minimize(constraint, coefficients):
     if cost == 10000000000000 and error > tolerance:
         return("Error: tolerance could not be reached.")
     else:
-        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.2f degreec Celsius, with an aperture of %.2f mm and a speed of %.2f cm/s. \nPrint time will be %.2f minutes." 
+        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.2f degrees Celsius, with an aperture of %.2f mm and a speed of %.2f cm/s. \nPrint time will be %.2f minutes." 
             % (cost, errorNew, tempOptimized, apertureOptimized, speedOptimized, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized))))
     
 print(minimize(inputs(), coefficients()))
