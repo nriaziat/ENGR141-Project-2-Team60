@@ -9,10 +9,21 @@ def dictionary(file):
     
         for line in data:
         
-            x = float(line.split()[0])
-            y = float(line.split()[1])
+            try:
+        
+                x = float(line.split()[0])
+                y = float(line.split()[1])
+                
+                if y == 0:
+                
+                    y = .000001
+                    
+                dict[x] = y
             
-            dict[x] = y
+            # removes words from input data
+            except:
+                pass
+            
     #close file
     
     return(dict)
@@ -45,14 +56,14 @@ def residualStDev(dict, type, a0, a1):
             residList.append(y - yPrediction) 
             
         elif type == 'exponential':
-        
+                
             yPrediction = exp(a0 + (a1 * x))
-            residList.append(y - yPrediction) 
+            residList.append(log(y) - log(yPrediction)) 
             
         elif type == 'power':
         
             yPrediction = exp(a0) * (x ** a1)
-            residList.append(y - yPrediction) 
+            residList.append(log(y) - log(yPrediction)) 
             
     stDev = stdev(residList)
     
@@ -66,22 +77,37 @@ def regression(dict, type):
     sumxy = 0
     sumx2 = 0
     
+    offset = maxOffset(dict)
+    
     for item in dict:
     
         if type == 'linear':
         
-            x = item
-            y = dict[x]     
+            x = item + offset
+            y = dict[item]     
             
         elif type == 'exponential':
         
-            x = item
-            y = log(dict[x])
+            try:
             
+                x = item + offset
+                y = log(dict[item])
+                
+            except ValueError:
+                
+                y = log(.0000000001)
+                
         elif type == 'power':
-        
-            x = log(item)
-            y = log(dict[item])
+            
+            try:
+            
+                x = log(item) + offset
+                y = log(dict[item])
+                
+            except ValueError:
+            
+                x = log(.0000000001)
+                y = log(.0000000001)
             
         n += 1
         sumxy += x * y
@@ -125,19 +151,20 @@ def cleaner(dict, type, coeff):
         elif type == "exponential":
         
             yPrediction = exp(a0 + (a1 * x))
-            
-            if abs(y - yPrediction) < 2 * stDev:
+                
+            if abs(log(y) - log(yPrediction)) < 2 * stDev:
             
                 cleanDataDict[x] = y
                 
             else:
-                dirtyData[x] = y
                 
+                dirtyData[x] = y
+   
         elif type == "power":
         
             yPrediction = exp(a0) * (x ** a1)
             
-            if abs(y - yPrediction) < 2 * stDev:
+            if abs(log(y) - log(yPrediction)) < 2 * stDev:
             
                 cleanDataDict[x] = y
                 
@@ -263,11 +290,7 @@ def gradCostFunc(temp, volume, aperture, headSpeed):
     return(grad)
     
 def lagrangeMultiplier(gradF, gradG, tolerance, headSpeed, aperture, temp):
-
-    error = [speedError(headSpeed), apertureError(aperture), temperatureError(temp)]
-    error <= tolerance
-    gradF = lamda * gradG
-
+    pass
 
 def minimize(constraint, coefficients):
 
@@ -317,31 +340,49 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
-    if cost == 1000000 and error > tolerance:
+    if cost == 10000000000000 and error > tolerance:
     
-        return("Error: tolerance could not be reached.")
-                    
-    apertureVals  = range(((int(100 * apertureOptimized)) - 10), (int(100 *apertureOptimized)) + 10)
-    tempVals = range(((int(100 * tempOptimized)) - 10), (int(100 * tempOptimized)) + 10)
-    speedVals = range(((int(100 * speedOptimized)) - 10), (int(100 * speedOptimized)) + 10)
+        apertureVals = range(1, 20)
+        tempVals = range(400, 3600)
+        speedVals = range(1, 30)
+        
+    
+    else:
+    
+        minAperture = int(100 * apertureOptimized) - 10
+        if minAperture <= 0:
+            minAperture = 1
+        maxAperture = int(100 *apertureOptimized) + 10
+    
+        minTemp = int(100 * tempOptimized) - 10
+        maxTemp = int(100 * tempOptimized) + 10
+    
+        minSpeed = int(100 * speedOptimized) - 10
+        if minSpeed <= 0:
+            minSpeed = 1
+        maxSpeed = int(100 * speedOptimized) + 10
+    
+        apertureVals  = range(minAperture, maxAperture)
+        tempVals = range(minTemp, maxTemp)
+        speedVals = range(minSpeed, maxSpeed)
     
     print("Phase 2 optimization in progress...")
     
     for aperture in apertureVals:
          
         aperture = aperture / 100
-        #print(aperture, "...")
+        #print(aperture)
         for headSpeed in speedVals:
         
             headSpeed = headSpeed / 100
-            
+            #print(headSpeed)
             for temp in tempVals: 
             
                 temp = temp / 100
-                
+                #print(temp)
                 costNew = costFunc(volume, productionTime(printTime(volume, headSpeed, aperture), cureTime(temp)))
                 error = errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
-                
+                #print(costNew, error)
                 if costNew < cost and error < tolerance:
                     #print("yay")
                     cost = costNew
@@ -350,21 +391,37 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
-    if cost == 1000000 and error > tolerance:
+    if cost == 10000000000000 and error > tolerance:
     
-        return("Error: tolerance could not be reached.")                
-    #print(apertureOptimized, tempOptimized, speedOptimized)
+        apertureVals = range(1, 20)
+        tempVals = range(4000, 5000)
+        speedVals = range(1, 30)
+        
+    else:
     
-    apertureVals  = range((int(1000 * apertureOptimized)) - 100, (int(1000 * apertureOptimized)) + 100)
-    tempVals = range((int(1000 * tempOptimized)) - 100, (int(1000 * tempOptimized)) + 100)
-    speedVals = range((int(1000 * speedOptimized)) - 100, (int(1000 * speedOptimized)) + 100)
+        minAperture = int(1000 * apertureOptimized) - 100
+        if minAperture <= 0:
+            minAperture = 1
+        maxAperture = int(1000 *apertureOptimized) + 100
+    
+        minTemp = int(1000 * tempOptimized) - 100
+        maxTemp = int(1000 * tempOptimized) + 100
+    
+        minSpeed = int(1000 * speedOptimized) - 100
+        if minSpeed <= 0:
+            minSpeed = 1
+        maxSpeed = int(1000 * speedOptimized) + 100
+    
+        apertureVals  = range(minAperture, maxAperture)
+        tempVals = range(minTemp, maxTemp)
+        speedVals = range(minSpeed, maxSpeed)
     
     print("Final optimization in progress...")
 
     for aperture in apertureVals:
         
         aperture = aperture / 1000
-        #print(aperture, "...")
+        
         for headSpeed in speedVals:
         
             headSpeed = headSpeed / 1000
@@ -386,8 +443,9 @@ def minimize(constraint, coefficients):
      
     if cost == 10000000000000 and error > tolerance:
         return("Error: tolerance could not be reached.")
+        
     else:
-        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.2f degrees Celsius, with an aperture of %.2f mm and a speed of %.2f cm/s. \nPrint time will be %.2f minutes." 
+        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.3f degrees Celsius, with an aperture of %.3f mm and a speed of %.3f cm/s. \nPrint time will be %.3f minutes." 
             % (cost, errorNew, tempOptimized, apertureOptimized, speedOptimized, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized))))
     
 print(minimize(inputs(), coefficients()))
