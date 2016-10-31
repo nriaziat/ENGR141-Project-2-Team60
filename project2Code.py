@@ -349,18 +349,18 @@ def minimize(constraint, coefficients):
     
     else:
     
-        minAperture = int(100 * apertureOptimized) - 10
+        minAperture = int(100 * apertureOptimized) - 30
         if minAperture <= 0:
             minAperture = 1
-        maxAperture = int(100 *apertureOptimized) + 10
+        maxAperture = int(100 *apertureOptimized) + 30
     
-        minTemp = int(100 * tempOptimized) - 10
-        maxTemp = int(100 * tempOptimized) + 10
+        minTemp = int(100 * tempOptimized) - 30
+        maxTemp = int(100 * tempOptimized) + 30
     
-        minSpeed = int(100 * speedOptimized) - 10
+        minSpeed = int(100 * speedOptimized) - 30
         if minSpeed <= 0:
             minSpeed = 1
-        maxSpeed = int(100 * speedOptimized) + 10
+        maxSpeed = int(100 * speedOptimized) + 30
     
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
@@ -399,25 +399,25 @@ def minimize(constraint, coefficients):
         
     else:
     
-        minAperture = int(1000 * apertureOptimized) - 100
+        minAperture = int(1000 * apertureOptimized) - 50
         if minAperture <= 0:
             minAperture = 1
-        maxAperture = int(1000 *apertureOptimized) + 100
+        maxAperture = int(1000 *apertureOptimized) + 50
     
-        minTemp = int(1000 * tempOptimized) - 100
-        maxTemp = int(1000 * tempOptimized) + 100
+        minTemp = int(1000 * tempOptimized) - 50
+        maxTemp = int(1000 * tempOptimized) + 50
     
-        minSpeed = int(1000 * speedOptimized) - 100
+        minSpeed = int(1000 * speedOptimized) - 50
         if minSpeed <= 0:
             minSpeed = 1
-        maxSpeed = int(1000 * speedOptimized) + 100
+        maxSpeed = int(1000 * speedOptimized) + 50
     
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
         speedVals = range(minSpeed, maxSpeed)
     
     print("Final optimization in progress...")
-
+    
     for aperture in apertureVals:
         
         aperture = aperture / 1000
@@ -435,12 +435,21 @@ def minimize(constraint, coefficients):
                 
                 if costNew < cost and error < tolerance:
                     #print("valid")
+                    
                     cost = costNew
                     errorNew = error
                     apertureOptimized = aperture
                     tempOptimized = temp
                     speedOptimized = headSpeed 
-     
+                    
+                elif costNew == cost and error < errorNew:
+                    
+                    cost = costNew
+                    errorNew = error
+                    apertureOptimized = aperture
+                    tempOptimized = temp
+                    speedOptimized = headSpeed 
+                    
     if cost == 10000000000000 and error > tolerance:
         return("Error: tolerance could not be reached.")
         
