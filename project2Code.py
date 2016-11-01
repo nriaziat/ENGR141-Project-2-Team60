@@ -329,7 +329,7 @@ def minimize(constraint, coefficients):
     aperture = 4
     headSpeed = 5
     
-    cost = 10000000000000
+    cost = 1.7976931348623157e+308
     
     apertureVals = range(1, 20)
     tempVals = range(40, 360)
@@ -359,6 +359,7 @@ def minimize(constraint, coefficients):
                     apertureOptimized = aperture
                     tempOptimized = temp
                     speedOptimized = headSpeed
+
                     
                 elif costNew <= cost and error < errorNew:
                     
@@ -368,7 +369,7 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
-    if cost == 10000000000000 and error > tolerance:
+    if cost == 1.7976931348623157e+308 and error > tolerance:
     
         apertureVals = range(1, 20)
         tempVals = range(400, 3600)
@@ -383,6 +384,8 @@ def minimize(constraint, coefficients):
         maxAperture = int(100 *apertureOptimized) + 10
     
         minTemp = int(100 * tempOptimized) - 10
+        if minTemp <= 0:
+            minTemp = 1
         maxTemp = int(100 * tempOptimized) + 10
     
         minSpeed = int(100 * speedOptimized) - 10
@@ -393,6 +396,7 @@ def minimize(constraint, coefficients):
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
         speedVals = range(minSpeed, maxSpeed)
+        print(minTemp,maxTemp)
     
     print("Phase 2 optimization in progress...")
     
@@ -407,11 +411,11 @@ def minimize(constraint, coefficients):
             for temp in tempVals: 
             
                 temp = temp / 100
-                #print(temp)
+                
                 costNew = costFunc(volume, productionTime(printTime(volume, headSpeed, aperture), cureTime(temp)))
                 error = errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
                 #print(costNew, error)
-                if costNew < cost and error < tolerance and 4 <= temp <= 36:
+                if costNew < cost and error < tolerance:
                     #print("yay")
                     cost = costNew
                     errorNew = error
@@ -427,7 +431,7 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
-    if cost == 10000000000000 and error > tolerance:
+    if cost == 1.7976931348623157e+308 and error > tolerance:
     
         apertureVals = range(1, 20)
         tempVals = range(4000, 5000)
@@ -486,7 +490,7 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed 
                     
-    if cost == 10000000000000 and error > tolerance:
+    if cost == 1.7976931348623157e+308 and error > tolerance:
         return("Error: tolerance could not be reached.")
         
     else:
@@ -533,7 +537,7 @@ def variability(dataList):
                'Temperature: %.3f degrees Celsius\n'
                'Cost: $%.2f (Range: $%.2f to $%.2f)\n'
                'Dimensional Error: %.3f mm (Range: %.3f mm to %.3f mm)\n'
-               'Production Time: %.3f minutes(Range %.3f minutes to %.3f minutes'
+               'Production Time: %.3f minutes(Range: %.3f minutes to %.3f minutes'
                % (speedOptimized - .0005, apertureOptimized - .0005, tempOptimized - .0005, cost, costMax, costMin, errorNew, errorMin, errorMax, prodTime, timeMax, timeMin))
 print(variability(minimize(inputs(), coefficients())))
 
