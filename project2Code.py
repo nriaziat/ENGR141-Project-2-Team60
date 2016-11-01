@@ -352,7 +352,7 @@ def minimize(constraint, coefficients):
                 costNew = costFunc(volume, productionTime(printTime(volume, headSpeed, aperture), cureTime(temp)))
                 error = errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
                 
-                if costNew < cost and error < tolerance and 4 <= temp <= 36:
+                if costNew < cost and error < tolerance:
                 
                     cost = costNew
                     errorNew = error
@@ -384,8 +384,8 @@ def minimize(constraint, coefficients):
         maxAperture = int(100 *apertureOptimized) + 10
     
         minTemp = int(100 * tempOptimized) - 10
-        if minTemp <= 0:
-            minTemp = 1
+        if minTemp < 400:
+            minTemp = 400
         maxTemp = int(100 * tempOptimized) + 10
     
         minSpeed = int(100 * speedOptimized) - 10
@@ -396,7 +396,6 @@ def minimize(constraint, coefficients):
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
         speedVals = range(minSpeed, maxSpeed)
-        print(minTemp,maxTemp)
     
     print("Phase 2 optimization in progress...")
     
@@ -445,6 +444,8 @@ def minimize(constraint, coefficients):
         maxAperture = int(1000 *apertureOptimized) + 10 
     
         minTemp = int(1000 * tempOptimized) - 10
+        if minTemp < 4000:
+            minTemp = 4000
         maxTemp = int(1000 * tempOptimized) + 10
     
         minSpeed = int(1000 * speedOptimized) - 10
@@ -473,7 +474,7 @@ def minimize(constraint, coefficients):
                 costNew = costFunc(volume, productionTime(printTime(volume, headSpeed, aperture), cureTime(temp)))
                 error = errorFunc(speedError(speedCoeffs, headSpeed), apertureError(apertureCoeffs, aperture), temperatureError(temperatureCoeffs, temp))
                 
-                if costNew < cost and error < tolerance and 4 <= temp <= 36:
+                if costNew < cost and error < tolerance:
                     #print("valid")
                     
                     cost = costNew
