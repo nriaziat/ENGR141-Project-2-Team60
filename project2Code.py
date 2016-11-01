@@ -1,6 +1,36 @@
+# Project 2
+# File: project2Code.py
+# Date: 31 Octover 2016
+# By: Naveed Riaziat
+# nriaziat
+# Logan Walters
+# walte123
+# Corey Hellman
+# chellma
+# Ian Bernander
+# ibernand
+# Section: 4
+# Team: 60
+#
+# ELECTRONIC SIGNATURE
+# Naveed Riaziat
+# Logan Walters
+# Corey Hellman
+# Ian Bernanders
+#
+# The electronic signatures above indicate that the program
+# submitted for evaluation is the combined effort of all
+# team members and that each member of the team was an
+# equal participant in its creation. In addition, each
+# member of the team has a general understanding of
+# all aspects of the program development and execution.
+#
+# minimizes printing cost based on a given tolerance and volume
+
 from math import exp, log
 from statistics import stdev
 
+# adds the input data to a dictionary
 def dictionary(file):
 
     dict = {}
@@ -28,12 +58,13 @@ def dictionary(file):
     
     return(dict)
 
+# finds the x offset of the minimum data value from 0
 def maxOffset(dict):
 
 	offset = 0
     
 	for item in dict:
-    
+        # for negative items in the dictionary, find the largest one
 		if item < 0:
         
 			if abs(item) > offset:
@@ -41,7 +72,8 @@ def maxOffset(dict):
 				offset = abs(item)
                 
 	return(offset)
-	   
+
+# finds the standard deviation of the residuals    
 def residualStDev(dict, type, a0, a1):
 
     residList = []
@@ -69,6 +101,7 @@ def residualStDev(dict, type, a0, a1):
     
     return(stDev)
 
+# creates a regression line based on the input data type
 def regression(dict, type):
     # figure out the linear regression
     n = 0
@@ -115,11 +148,13 @@ def regression(dict, type):
         sumy += y
         sumx2 += x ** 2
         
+    #print(n, sumx2, sumx)
     a0 = (sumy * sumx2 - sumx * sumxy) / (n * sumx2 - sumx * sumx)
     a1 = (n * sumxy - sumx * sumy) / (n * sumx2 - sumx * sumx)
     
     return(a0, a1)
  
+ # removes noisy data from the input
 def cleaner(dict, type, coeff):
 
     a0 = coeff[0]
@@ -129,11 +164,11 @@ def cleaner(dict, type, coeff):
     dirtyData = {}
     
     stDev = residualStDev(dict, type, a0, a1)
-    offset = maxOffset(dict)
+    xOffset = maxOffset(dict)
     
     for item in dict:
     
-        x = item + offset
+        x = item + xOffset
         y = dict[item]
         
         if type == "linear":
@@ -171,9 +206,12 @@ def cleaner(dict, type, coeff):
             else:
             
                 dirtyData[x] = y
+          
     #print("Dirty Data: ", type, " : \n", dirtyData)
-    return(cleanDataDict)
    
+    return(cleanDataDict)
+  
+# organizes initial data  
 def dataHandling(file, regType):
 
     data = dictionary(file)
@@ -184,31 +222,35 @@ def dataHandling(file, regType):
     finalReg = regression(cleanData, regType)
     
     return(finalReg)
-    
+ 
+# stores the regression coefficients for each regression 
 def coefficients():
 
     speedCoeffs = dataHandling('project2Speed.txt','linear')
     apertureCoeffs = dataHandling('project2Aperture.txt', 'exponential')
     temperatureCoeffs = dataHandling('project2Temperature.txt', 'power')
-    
+    #print(speedCoeffs[0], speedCoeffs[1], apertureCoeffs[0], apertureCoeffs[1], temperatureCoeffs[0], temperatureCoeffs[1])
     return(speedCoeffs[0], speedCoeffs[1], apertureCoeffs[0], apertureCoeffs[1], temperatureCoeffs[0], temperatureCoeffs[1])
 
+# takes user inputs for tolerance and volume
 def inputs():
 
     volume = float(input("Enter print volume in cubic centimeters: "))
     tolerance = float(input("Enter print tolerance in millimeters: "))
     
     return(volume, tolerance)
-    
+  
+# determines error from speed given the regression and speed  
 def speedError(coefficients, headSpeed):
 
     a0 = coefficients[0]
     a1 = coefficients[1]
     
-    speedError = a0 + a1 * headSpeed 
+    speedError = a1 * headSpeed 
     
     return(speedError)
 
+# determines the aperture error based on regression and aperture    
 def apertureError(coefficients, aperture):
 
     a0 = coefficients[0]
@@ -218,6 +260,7 @@ def apertureError(coefficients, aperture):
     
     return(apertureError)
 
+# determines temperature error based on regression and temp
 def temperatureError(coefficients, temp):
 
     a0 = coefficients[0]
@@ -227,30 +270,21 @@ def temperatureError(coefficients, temp):
     
     return(temperatureError)
     
+# determines the total dimensional error
 def errorFunc(speedError, apertureError, temperatureError):
 
     error = speedError + apertureError + temperatureError
     
     return(error)
 
-def gradErrorFunc(coefficients, aperture, temp):
-
-    a0 = coefficients[0]
-    a1 = coefficients[1]
-    a2 = coefficients[2]
-    a3 = coefficients[3]
-    a4 = coefficients[4]
-    a5 = coefficients[5]
-    
-    gradient = [a1, a3 * exp(a2 + a3 * aperture), a5 * exp(a4) * temp ** (a5 - 1)]
-    return(gradient)
-    
+# determines print time in minutes
 def printTime(volume, headSpeed, aperture):
 
     printingTime = volume / (headSpeed * aperture)
     
     return(printingTime)
-    
+
+# determines cure time based on temperature    
 def cureTime(temp):
 
     if temp >= 4 and temp <= 36:
@@ -263,6 +297,7 @@ def cureTime(temp):
         
     return(cureTime)
 
+# determines production time based on cure and print time
 def productionTime(printingTime, cureTime):
 
     if printingTime >= cureTime:
@@ -274,24 +309,15 @@ def productionTime(printingTime, cureTime):
         prodTime = cureTime
         
     return(prodTime)
-    
+ 
+# finds the cost pased on volume and production time 
 def costFunc(volume, productionTime):
 
     c = 500 * volume + 18 * productionTime
     
     return(c)
 
-def gradCostFunc(temp, volume, aperture, headSpeed):
-
-    if printingTime  >= cureTime:
-        grad = [-18 * volume / ((headSpeed ** 2) * aperture), -18 * volume / (headSpeed * (aperture ** 2)), 0]
-    else:
-        grad = [-18 * 1570 / temp ** 2 , 0, 0]
-    return(grad)
-    
-def lagrangeMultiplier(gradF, gradG, tolerance, headSpeed, aperture, temp):
-    pass
-
+# minimizes the cost using and optimized brute force method
 def minimize(constraint, coefficients):
 
     volume = constraint[0]
@@ -334,6 +360,14 @@ def minimize(constraint, coefficients):
                 
                 if costNew < cost and error < tolerance:
                 
+                    cost = costNew
+                    errorNew = error
+                    apertureOptimized = aperture
+                    tempOptimized = temp
+                    speedOptimized = headSpeed
+                    
+                elif costNew <= cost and error < errorNew:
+                    
                     cost = costNew
                     errorNew = error
                     apertureOptimized = aperture
@@ -390,6 +424,14 @@ def minimize(constraint, coefficients):
                     apertureOptimized = aperture
                     tempOptimized = temp
                     speedOptimized = headSpeed
+                
+                elif costNew <= cost and error < errorNew:
+                    
+                    cost = costNew
+                    errorNew = error
+                    apertureOptimized = aperture
+                    tempOptimized = temp
+                    speedOptimized = headSpeed
                     
     if cost == 10000000000000 and error > tolerance:
     
@@ -402,7 +444,7 @@ def minimize(constraint, coefficients):
         minAperture = int(1000 * apertureOptimized) - 50
         if minAperture <= 0:
             minAperture = 1
-        maxAperture = int(1000 *apertureOptimized) + 50
+        maxAperture = int(1000 *apertureOptimized) + 50 
     
         minTemp = int(1000 * tempOptimized) - 50
         maxTemp = int(1000 * tempOptimized) + 50
@@ -442,7 +484,7 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed 
                     
-                elif costNew == cost and error < errorNew:
+                elif costNew <= cost and error < errorNew:
                     
                     cost = costNew
                     errorNew = error
@@ -454,9 +496,42 @@ def minimize(constraint, coefficients):
         return("Error: tolerance could not be reached.")
         
     else:
-        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.3f degrees Celsius, with an aperture of %.3f mm and a speed of %.3f cm/s. \nPrint time will be %.3f minutes." 
-            % (cost, errorNew, tempOptimized, apertureOptimized, speedOptimized, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized))))
-    
-print(minimize(inputs(), coefficients()))
+        #return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.3f degrees Celsius, with an aperture of %.3f mm and a speed of %.3f cm/s. \nPrint time will be %.3f minutes." 
+            #% (cost, errorNew, tempOptimized, apertureOptimized, speedOptimized, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized))))
+        return(cost, errorNew, tempOptimized, apertureOptimized, speedOptimized, printTime, volume, speedCoeffs, apertureCoeffs, temperatureCoeffs)
+
+def variability(dataList):
+
+        if type(dataList) != tuple:
+            return(dataList)
+            
+        cost = dataList[0]
+        errorNew = dataList[1]
+        tempOptimized = dataList[2]
+        apertureOptimized = dataList[3]
+        speedOptimized = dataList[4]
+        volume = dataList[6]
+        speedCoeffs  = dataList[7]
+        apertureCoeffs = dataList[8]
+        temperatureCoeffs = dataList[9]
+            
+        tempOptimized -= .0005
+        speedOptimized -= .0005
+        apertureOptimized -= .0005
+            
+        costMin = costFunc(volume, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized)))
+        errorMin = errorFunc(speedError(speedCoeffs, speedOptimized), apertureError(apertureCoeffs, apertureOptimized), temperatureError(temperatureCoeffs, tempOptimized))
+            
+        tempOptimized += .001
+        speedOptimized += .001
+        apertureOptimized += .001
+            
+        costMax = costFunc(volume, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized)))
+        errorMax = errorFunc(speedError(speedCoeffs, speedOptimized), apertureError(apertureCoeffs, apertureOptimized), temperatureError(temperatureCoeffs, tempOptimized))
+            
+        return("The part will cost $%.2f with an error of plus or minus %.2f mm. Print at %.3f degrees Celsius, with an aperture of %.3f mm and a speed of %.3f cm/s. \nPrint time will be %.3f minutes. The data may vary due to tolerances in specific parameters from a cost of $%.2f to $%.2f and a tolerance of %.4f to %.4f"
+            % (cost, errorNew, tempOptimized, apertureOptimized, speedOptimized, productionTime(printTime(volume, speedOptimized, apertureOptimized), cureTime(tempOptimized)), costMin, costMax, errorMin, errorMax))
+            
+print(variability(minimize(inputs(), coefficients())))
 
 #residualStDev(dictionary('project2Speed.txt'), 'linear', regression(dictionary('project2Speed.txt'), 'linear')[0], regression(dictionary('project2Speed.txt'), 'linear')[1])
