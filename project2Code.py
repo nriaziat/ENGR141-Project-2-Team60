@@ -235,11 +235,35 @@ def coefficients():
 # takes user inputs for tolerance and volume
 def inputs():
 
-    volume = float(input("Enter print volume in cubic centimeters: "))
-    tolerance = float(input("Enter print tolerance in millimeters: "))
+    while True:
     
+        try:    
+            volume = float(input("Enter print volume in cubic centimeters: "))
+            test = 1 / volume
+        except ValueError:  
+            print("Invalid Volume.")
+            
+        except ZeroDivisionError:
+            print("Non-zero volume needed.")
+            
+        else:
+            break
+            
+    while True:
+    
+        try:
+            tolerance = float(input("Enter print tolerance in millimeters: "))
+            test = 1 / tolerance
+        except ValueError:
+            print("Invalid tolerance.")
+         
+        except ZeroDivisionError:
+            print("Non-zero tolerance needed.")
+            
+        else:
+            break
+            
     return(volume, tolerance)
-  
 # determines error from speed given the regression and speed  
 def speedError(coefficients, headSpeed):
 
@@ -536,9 +560,9 @@ def variability(dataList):
         return('Speed: %.3f mm/s\n'
                'Aperture: %.3f mm^2\n'
                'Temperature: %.3f degrees Celsius\n'
-               'Cost: $%.2f (Range: $%.2f to $%.2f)\n'
-               'Dimensional Error: %.3f mm (Range: %.3f mm to %.3f mm)\n'
-               'Production Time: %.3f minutes(Range: %.3f minutes to %.3f minutes'
+               'Cost: $%.2f (Expected Range: $%.2f to $%.2f)\n'
+               'Dimensional Error: %.3f mm (Expected Range: %.3f mm to %.3f mm)\n'
+               'Production Time: %.3f minutes(Expected Range: %.3f minutes to %.3f minutes'
                % (speedOptimized - .0005, apertureOptimized - .0005, tempOptimized - .0005, cost, costMax, costMin, errorNew, errorMin, errorMax, prodTime, timeMax, timeMin))
 print(variability(minimize(inputs(), coefficients())))
 
