@@ -1,6 +1,6 @@
-# Project 2
-# File: project2Code.py
-# Date: 31 Octover 2016
+# Project 2 BioPrinter Model
+# File: proj2_BPModel_team60.py
+# Date: 1 November 2016
 # By: Naveed Riaziat
 # nriaziat
 # Logan Walters
@@ -25,7 +25,8 @@
 # member of the team has a general understanding of
 # all aspects of the program development and execution.
 #
-# minimizes printing cost based on a given tolerance and volume
+# minimizes bioprinting cost based on a given tolerance and volume
+#parameters are defined from error data files
 
 from math import exp, log
 from statistics import stdev
@@ -237,42 +238,45 @@ def inputs():
 
     bedSize = 10000
     volume = 'None'
+    tolerance = 'None'
     while volume == 'None':
     
         try:    
         
             volume = float(input("Enter print volume in cubic centimeters: "))
-            test = 1 / volume
             
             if volume >= bedSize:
             
-                confirmation = input('Warning: This volume may not be printable. Use this value? (Y/N)\n').lower()
+                confirmation = input('Warning: This volume may not fit on the print bed. Use this value? (Y/N)\n').lower()
                 
                 if confirmation != 'y':
                     volume = 'None'
                     
+            elif volume <= 0:
+                print("Volumes must be greater than 0.")
+                volume = 'None'
+                
         except ValueError:
         
             print("Invalid Volume.")
             volume = 'None'
-            
-        except ZeroDivisionError:
-            print("Non-zero volume needed.")
-            volume = 'None'
-            
-    while True:
+           
+    while tolerance == 'None':
     
         try:
+        
             tolerance = float(input("Enter print tolerance in millimeters: "))
-            test = 1 / tolerance
-        except ValueError:
-            print("Invalid tolerance.")
-         
-        except ZeroDivisionError:
-            print("Non-zero tolerance needed.")
             
-        else:
-            break
+            if tolerance <= 0:
+            
+                tolerance = 'None'
+                
+                print("Tolerance must be greater than 0.")             
+                
+        except ValueError:
+        
+            tolerance = 'None'
+            print("Invalid tolerance.")
             
     return(volume, tolerance)
 # determines error from speed given the regression and speed  
@@ -314,8 +318,12 @@ def errorFunc(speedError, apertureError, temperatureError):
 
 # determines print time in minutes
 def printTime(volume, headSpeed, aperture):
+    
+    volume = volume * 1000 #convert cm3 to mm3
 
     printingTime = volume / (headSpeed * aperture)
+    
+    printingTime = printingTime / 60 #convert seconds to minutes
     
     return(printingTime)
 
@@ -416,19 +424,26 @@ def minimize(constraint, coefficients):
     
     else:
     
-        minAperture = int(100 * apertureOptimized) - 10
+        minAperture = int(100 * apertureOptimized) - 20
         if minAperture <= 0:
             minAperture = 1
-        maxAperture = int(100 *apertureOptimized) + 10
+        maxAperture = int(100 *apertureOptimized) + 20
+        if maxAperture > 191:
+            maxAperture = 191
     
-        minTemp = int(100 * tempOptimized) - 10
-        if minTemp < 400:
-            minTemp = 400
-        maxTemp = int(100 * tempOptimized) + 10
-        minSpeed = int(100 * speedOptimized) - 10
+        minTemp = int(100 * tempOptimized) - 20
+        if minTemp < 401:
+            minTemp = 401
+        maxTemp = int(100 * tempOptimized) + 20
+        if maxTemp > 3601:
+            maxTemp = 3601
+            
+        minSpeed = int(100 * speedOptimized) - 20
         if minSpeed <= 0:
             minSpeed = 1
-        maxSpeed = int(100 * speedOptimized) + 10
+        maxSpeed = int(100 * speedOptimized) + 20
+        if maxSpeed > 301:
+            maxSpeed = 301
     
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
@@ -477,21 +492,28 @@ def minimize(constraint, coefficients):
         
     else:
     
-        minAperture = int(1000 * apertureOptimized) - 10
+        minAperture = int(1000 * apertureOptimized) - 20
         if minAperture <= 0:
             minAperture = 1
-        maxAperture = int(1000 *apertureOptimized) + 10 
+        maxAperture = int(1000 *apertureOptimized) + 20
+        if maxAperture > 1901:
+            maxAperture = 1901
     
-        minTemp = int(1000 * tempOptimized) - 10
-        if minTemp < 4000:
-            minTemp = 4000
-        maxTemp = int(1000 * tempOptimized) + 10
+        minTemp = int(1000 * tempOptimized) - 20
+        if minTemp < 4001:
+            minTemp = 4001
+        maxTemp = int(1000 * tempOptimized) + 20
+        if maxTemp > 36001:
+            maxTemp = 36001
     
-        minSpeed = int(1000 * speedOptimized) - 10
+        minSpeed = int(1000 * speedOptimized) - 20
         if minSpeed <= 0:
             minSpeed = 1
-        maxSpeed = int(1000 * speedOptimized) + 10
-        print(tempOptimized)
+        maxSpeed = int(1000 * speedOptimized) + 20
+        if maxSpeed > 3001:
+            maxSpeed = 3001
+        
+        
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
         speedVals = range(minSpeed, maxSpeed)
@@ -584,9 +606,9 @@ def variability(dataList):
         
         return('Speed: %.3f mm/s\n'
                'Aperture: %.3f mm^2\n'
-               'Temperature: %.3f degrees Celsius\n'
+               'Temperature: %.2f degrees Celsius\n'
                'Cost: $%.2f (Expected Range: $%.2f to $%.2f)\n'
-               'Dimensional Error: %.3f mm (Expected Range: %.3f mm to'
+               'Dimensional Error: %.3f mm (Expected Range: %.3f mm to '
                                         '%.3f mm)\n'
                'Production Time: %.3f minutes (Expected Range: %.3f '
                                         'minutes to %.3f minutes'
