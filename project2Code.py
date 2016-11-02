@@ -33,7 +33,7 @@ from statistics import stdev
 
 # adds the input data to a dictionary
 def dictionary(file):
-
+    # create an empty dictionary to store input data
     dict = {}
     
     with open(file) as data:
@@ -41,10 +41,11 @@ def dictionary(file):
         for line in data:
         
             try:
-        
+                
                 x = float(line.split()[0])
                 y = float(line.split()[1])
                 
+                # sets small y values to nearly 0 to allow logarithm
                 if y == 0:
                 
                     y = .000001
@@ -84,17 +85,17 @@ def residualStDev(dict, type, a0, a1):
         y = dict[item]
         
         if type == 'linear':
-        
+            # predicts y value with linear regression
             yPrediction = a0 + (a1 * x)
             residList.append(y - yPrediction) 
             
         elif type == 'exponential':
-                
+            # predicts y value with exponential regression 
             yPrediction = exp(a0 + (a1 * x))
             residList.append(log(y) - log(yPrediction)) 
             
         elif type == 'power':
-        
+            # predicts y value with power regression
             yPrediction = exp(a0) * (x ** a1)
             residList.append(log(y) - log(yPrediction)) 
             
@@ -116,7 +117,7 @@ def regression(dict, type):
     for item in dict:
     
         if type == 'linear':
-        
+            # move x values right to account for offset
             x = item + offset
             y = dict[item]     
             
@@ -137,9 +138,10 @@ def regression(dict, type):
             
                 x = log(item) + offset
                 y = log(dict[item])
-                
-            except ValueError:
             
+            # prevents logarithm issues from x = 0 
+            except ValueError:
+                
                 x = log(.0000000001)
                 y = log(.0000000001)
             
@@ -162,7 +164,6 @@ def cleaner(dict, type, coeff):
     a1 = coeff[1]
     
     cleanDataDict = {}
-    dirtyData = {}
     
     stDev = residualStDev(dict, type, a0, a1)
     xOffset = maxOffset(dict)
@@ -176,6 +177,7 @@ def cleaner(dict, type, coeff):
         
             yPrediction = a0 + (a1 * x)
             
+            # checks points vs residual standard deviation
             if abs(y - yPrediction) < 2 * stDev:
             
                 cleanDataDict[x] = y
@@ -187,7 +189,8 @@ def cleaner(dict, type, coeff):
         elif type == "exponential":
         
             yPrediction = exp(a0 + (a1 * x))
-                
+            
+            # checks points vs residual standard deviation
             if abs(log(y) - log(yPrediction)) < 2 * stDev:
             
                 cleanDataDict[x] = y
@@ -200,15 +203,11 @@ def cleaner(dict, type, coeff):
         
             yPrediction = exp(a0) * (x ** a1)
             
+            # checks points vs residual standard deviation
             if abs(log(y) - log(yPrediction)) < 2 * stDev:
             
                 cleanDataDict[x] = y
-                
-            else:
-            
-                dirtyData[x] = y
-          
-   
+
     return(cleanDataDict)
   
 # organizes initial data  
@@ -239,23 +238,28 @@ def inputs():
     bedSize = 10000
     volume = 'None'
     tolerance = 'None'
+    
+    # as long as a valid volume is not inputted
     while volume == 'None':
     
         try:    
-        
+            
             volume = float(input("Enter print volume in cubic centimeters: "))
             
+            # if the inputted volume is greater than the volume of the printer
             if volume >= bedSize:
             
                 confirmation = input('Warning: This volume may not fit on the print bed. Use this value? (Y/N)\n').lower()
                 
                 if confirmation != 'y':
                     volume = 'None'
-                    
+             
+             # ensures positive volumes
             elif volume <= 0:
                 print("Volumes must be greater than 0.")
                 volume = 'None'
                 
+        # makes sure volume is a number       
         except ValueError:
         
             print("Invalid Volume.")
@@ -267,21 +271,24 @@ def inputs():
         
             tolerance = float(input("Enter print tolerance in millimeters: "))
             
+            # ensures tolerance is greater than 0
             if tolerance <= 0:
             
                 tolerance = 'None'
                 
                 print("Tolerance must be greater than 0.")             
-                
+       
+        # ensures tolerance is a number
         except ValueError:
         
             tolerance = 'None'
             print("Invalid tolerance.")
             
     return(volume, tolerance)
+    
 # determines error from speed given the regression and speed  
 def speedError(coefficients, headSpeed):
-
+        
     a0 = coefficients[0]
     a1 = coefficients[1]
     
@@ -356,7 +363,7 @@ def costFunc(volume, productionTime):
 
 # minimizes the cost using and optimized brute force method
 def minimize(constraint, coefficients):
-
+    
     volume = constraint[0]
     tolerance = constraint[1]
     speedCoeffs = coefficients[0:2]
@@ -372,6 +379,7 @@ def minimize(constraint, coefficients):
     aperture = 4
     headSpeed = 5
     
+    # large cost to determine if no solutions could be found
     cost = 1.7976931348623157e+308
     
     apertureVals = range(1, 20)
@@ -380,6 +388,7 @@ def minimize(constraint, coefficients):
     
     print("Phase 1 optimization in progress...")
     
+    # searches for all values in given ranges to .1 tolerance
     for aperture in apertureVals:
 
         aperture = aperture / 10
@@ -392,12 +401,15 @@ def minimize(constraint, coefficients):
             
                 temp = temp / 10
                 
+                # evaluates the functions with all given values
                 costNew = costFunc(volume, productionTime(printTime(volume,
                                 headSpeed, aperture), cureTime(temp)))
                 error = errorFunc(speedError(speedCoeffs, headSpeed), 
                                 apertureError(apertureCoeffs, aperture), 
                                 temperatureError(temperatureCoeffs, temp))
                 
+                # stores values if cost is lower than previous low cost 
+                #and error is acceptable
                 if costNew < cost and error < tolerance:
                 
                     cost = costNew
@@ -406,7 +418,7 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
 
-                    
+                # stores values with lower tolerance for equivalent cost    
                 elif costNew <= cost and error < errorNew:
                     
                     cost = costNew
@@ -415,15 +427,16 @@ def minimize(constraint, coefficients):
                     tempOptimized = temp
                     speedOptimized = headSpeed
                     
+    # if no solution was found, try entire range again               
     if cost == 1.7976931348623157e+308 and error > tolerance:
     
         apertureVals = range(1, 20)
         tempVals = range(400, 3600)
         speedVals = range(1, 30)
         
-    
+    # searches a smaller range of values localized around previous solution
     else:
-    
+        
         minAperture = int(100 * apertureOptimized) - 20
         if minAperture <= 0:
             minAperture = 1
@@ -451,6 +464,7 @@ def minimize(constraint, coefficients):
     
     print("Phase 2 optimization in progress...")
     
+    # checks all parameter values in new range
     for aperture in apertureVals:
          
         aperture = aperture / 100
@@ -520,6 +534,7 @@ def minimize(constraint, coefficients):
 
     print("Final optimization in progress...")
     
+    # checks all values for .001 tolerance
     for aperture in apertureVals:
         
         aperture = aperture / 1000
@@ -565,7 +580,8 @@ def minimize(constraint, coefficients):
                     temperatureCoeffs)
 
 def variability(dataList):
-
+        
+        # makes sure data is being input, and not an error from the last fxns
         if type(dataList) != tuple:
             return(dataList)
             
@@ -578,24 +594,30 @@ def variability(dataList):
         speedCoeffs  = dataList[7]
         apertureCoeffs = dataList[8]
         temperatureCoeffs = dataList[9]
+        
+        # calculates production time for given data
         prodTime = productionTime(printTime(volume, speedOptimized, 
                         apertureOptimized), cureTime(tempOptimized))
         
+        # changes data down by half of our precision 
         tempOptimized -= .0005
         speedOptimized -= .0005
         apertureOptimized -= .0005
 
+        # recalculates time, cost, error
         timeMin = productionTime(printTime(volume, speedOptimized, 
                         apertureOptimized), cureTime(tempOptimized))
         costMin = costFunc(volume, timeMin)
         errorMin = errorFunc(speedError(speedCoeffs, speedOptimized), 
                         apertureError(apertureCoeffs, apertureOptimized), 
                         temperatureError(temperatureCoeffs, tempOptimized))
-            
+         
+        #changes data up by half our precision
         tempOptimized += .001
         speedOptimized += .001
         apertureOptimized += .001
         
+        # recalculates time, cost, and error
         timeMax = productionTime(printTime(volume, speedOptimized,
                         apertureOptimized), cureTime(tempOptimized))
         costMax = costFunc(volume, timeMax)
