@@ -415,6 +415,7 @@ def minimize(constraint, coefficients):
     temperatureCoeffs = coefficients[4:6]
     
     errorNew = 0
+    errorMaxNew = 0
     tempOptimized = 0
     apertureOptimized = 0
     speedOptimized = 0
@@ -593,11 +594,16 @@ def minimize(constraint, coefficients):
                 
                 costNew = costFunc(volume, productionTime(printTime(volume, 
                                 headSpeed, aperture), cureTime(temp)))
+                                
                 error = errorFunc(speedError(speedCoeffs, headSpeed), 
                                 apertureError(apertureCoeffs, aperture), 
                                 temperatureError(temperatureCoeffs, temp))
+                                
+                errorMax = errorFunc(speedError(speedCoeffs, headSpeed) + .0005, 
+                                apertureError(apertureCoeffs, aperture) + .0005, 
+                                temperatureError(temperatureCoeffs, temp) + .0005)
                 
-                if costNew < cost and error < tolerance:
+                if costNew < cost and errorMax < tolerance:
                     #print("valid")
                     
                     cost = costNew
@@ -605,8 +611,9 @@ def minimize(constraint, coefficients):
                     apertureOptimized = aperture
                     tempOptimized = temp
                     speedOptimized = headSpeed 
+                    errorMaxNew = errorMax
                     
-                elif costNew <= cost and error < errorNew:
+                elif costNew <= cost and errorMax < errorMaxNew:
                     
                     cost = costNew
                     errorNew = error
@@ -652,11 +659,13 @@ def variability(dataList):
         # recalculates time, cost, error
         timeMin = productionTime(printTime(volume, speedOptimized, 
                         apertureOptimized), cureTime(tempOptimized))
+                        
         costMin = costFunc(volume, timeMin)
+        
         errorMin = errorFunc(speedError(speedCoeffs, speedOptimized), 
                         apertureError(apertureCoeffs, apertureOptimized), 
                         temperatureError(temperatureCoeffs, tempOptimized))
-         
+        
         #changes data up by half our precision
         tempOptimized += .001
         speedOptimized += .001
@@ -665,18 +674,20 @@ def variability(dataList):
         # recalculates time, cost, and error
         timeMax = productionTime(printTime(volume, speedOptimized,
                         apertureOptimized), cureTime(tempOptimized))
+                        
         costMax = costFunc(volume, timeMax)
+        
         errorMax = errorFunc(speedError(speedCoeffs, speedOptimized), 
                         apertureError(apertureCoeffs, apertureOptimized), 
                         temperatureError(temperatureCoeffs, tempOptimized))
                         
-         
+     
         return('Speed: %.3f mm/s\n'
                'Aperture: %.3f mm^2\n'
                'Temperature: %.2f degrees Celsius\n'
                'Cost: $%.2f (Expected Range: $%.2f to $%.2f)\n'
-               'Dimensional Error: %.3f mm (Expected Range: %.3f mm to '
-                                        '%.3f mm)\n'
+               'Dimensional Error: %.5f mm (Expected Range: %.5f mm to '
+                                        '%.5f mm)\n'
                'Production Time: %.3f minutes (Expected Range: %.3f '
                                         'minutes to %.3f minutes'
                % (speedOptimized - .0005, apertureOptimized - .0005, 
