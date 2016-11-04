@@ -28,6 +28,7 @@
 # minimizes bioprinting cost based on a given tolerance and volume
 #parameters are defined from error data files
 
+import time
 from math import exp, log
 from statistics import stdev
 
@@ -35,8 +36,8 @@ from statistics import stdev
 def dictionary(file):
     # create an empty dictionary to store input data
     dict = {}
-    
-    with open(file) as data:
+
+    with open(file, "r") as data:
     
         for line in data:
         
@@ -220,11 +221,58 @@ def dataHandling(file, regType):
 # stores the regression coefficients for each regression 
 def coefficients():
 
-    speedCoeffs = dataHandling('project2Speed.txt','linear')
-    apertureCoeffs = dataHandling('project2Aperture.txt', 'exponential')
-    temperatureCoeffs = dataHandling('project2Temperature.txt', 'power')
-    print(speedCoeffs,apertureCoeffs,temperatureCoeffs)
-
+    speed = 'project2Speed.txt'
+    aperture = 'project2Aperture.txt'
+    temperature = 'project2Temperature.txt'
+    
+    while True: 
+    
+        try:
+            speedCoeffs = dataHandling(speed,'linear')
+            
+        except:
+        
+            print("Speed Data "'%s'" not found." %(speed))
+            speed = input("Input new file name: ")
+            
+            if speed[-4:] != '.txt':
+                speed = speed + '.txt'
+        else:
+            break
+            
+    while True:
+        
+        try:
+            apertureCoeffs = dataHandling(aperture, 'exponential')
+            
+        except:
+        
+            print("Aperture Data "'%s'" not found." %(aperture))
+            aperture = input("Input new file name: ")
+            
+            if aperture[-4:] != '.txt':
+                aperture = aperture + '.txt'   
+                
+        else:
+            break
+            
+    while True:
+    
+        try:
+            temperatureCoeffs = dataHandling(temperature, 'power')
+            
+        except:
+            print("Temperture Data "'%s'" not found." %(temperature))
+            temperature = input("Input new file name: ")
+            
+            if temperature[-4:] != '.txt':
+                temperature = temperature + '.txt'
+            
+        else:  
+            break
+            
+    globals()["start_time"] = time.time()
+    
     return(speedCoeffs[0], speedCoeffs[1], apertureCoeffs[0], apertureCoeffs[1],
         temperatureCoeffs[0], temperatureCoeffs[1])
 
@@ -279,7 +327,7 @@ def inputs():
         
             tolerance = 'None'
             print("Invalid tolerance.")
-            
+    
     return(volume, tolerance)
     
 # determines error from speed given the regression and speed  
@@ -576,6 +624,7 @@ def minimize(constraint, coefficients):
                     temperatureCoeffs)
 
 def variability(dataList):
+
         
         # makes sure data is being input, and not an error from the last fxns
         if type(dataList) != tuple:
@@ -620,8 +669,8 @@ def variability(dataList):
         errorMax = errorFunc(speedError(speedCoeffs, speedOptimized), 
                         apertureError(apertureCoeffs, apertureOptimized), 
                         temperatureError(temperatureCoeffs, tempOptimized))
-            
-        
+                        
+         
         return('Speed: %.3f mm/s\n'
                'Aperture: %.3f mm^2\n'
                'Temperature: %.2f degrees Celsius\n'
@@ -633,5 +682,7 @@ def variability(dataList):
                % (speedOptimized - .0005, apertureOptimized - .0005, 
                     tempOptimized - .0005, cost, costMax, costMin, errorNew,
                     errorMin, errorMax, prodTime, timeMax, timeMin))
+                   
 
 print(variability(minimize(inputs(), coefficients())))
+print("Time to find solution: %.3f seconds." % (float(time.time() - start_time)))
