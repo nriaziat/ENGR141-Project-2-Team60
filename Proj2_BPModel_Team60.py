@@ -628,9 +628,9 @@ def minimize(constraint, coefficients):
         return("Error: tolerance could not be reached.")
         
     else:
-        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                              apertureError(apertureCoeffs, aperture), 
-                              temperatureError(temperatureCoeffs, temp))
+        errorNew = errorFunc(speedError(speedCoeffs, speedOptimized), 
+                              apertureError(apertureCoeffs, apertureOptimized), 
+                              temperatureError(temperatureCoeffs, tempOptimized))
         return(cost, errorNew, tempOptimized, apertureOptimized, 
                     speedOptimized, printTime, volume, speedCoeffs, apertureCoeffs,
                     temperatureCoeffs)
