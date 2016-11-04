@@ -437,8 +437,6 @@ def minimize(constraint, coefficients):
     tempVals = range(40, 360)
     speedVals = range(1, 30)
     
-    print("Phase 1 optimization in progress...")
-    
     # searches for all values in given ranges to .1 tolerance
     for aperture in apertureVals:
 
@@ -512,9 +510,7 @@ def minimize(constraint, coefficients):
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
         speedVals = range(minSpeed, maxSpeed)
-    
-    print("Phase 2 optimization in progress...")
-    
+        
     # checks all parameter values in new range
     for aperture in apertureVals:
          
@@ -587,8 +583,6 @@ def minimize(constraint, coefficients):
         apertureVals  = range(minAperture, maxAperture)
         tempVals = range(minTemp, maxTemp)
         speedVals = range(minSpeed, maxSpeed)
-
-    print("Final optimization in progress...")
     
     # checks all values for .001 tolerance
     for aperture in apertureVals:
