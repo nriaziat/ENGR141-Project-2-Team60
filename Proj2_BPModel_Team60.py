@@ -421,7 +421,6 @@ def minimize(constraint, coefficients):
     apertureCoeffs = coefficients[2:4]
     temperatureCoeffs = coefficients[4:6]
     
-    errorNew = 0
     errorMaxNew = 0
     tempOptimized = 0
     apertureOptimized = 0
@@ -466,9 +465,6 @@ def minimize(constraint, coefficients):
                     if costNew < cost:
                     
                         cost = costNew
-                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                    apertureError(apertureCoeffs, aperture), 
-                                    temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
@@ -478,9 +474,6 @@ def minimize(constraint, coefficients):
                     elif costNew <= cost and errorMax < errorMaxNew:
                     
                         cost = costNew
-                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                    apertureError(apertureCoeffs, aperture), 
-                                    temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
@@ -548,9 +541,6 @@ def minimize(constraint, coefficients):
                     if costNew < cost:
                     
                         cost = costNew
-                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                    apertureError(apertureCoeffs, aperture), 
-                                    temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
@@ -560,9 +550,6 @@ def minimize(constraint, coefficients):
                     elif costNew <= cost and errorMax < errorMaxNew:
                     
                         cost = costNew
-                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                    apertureError(apertureCoeffs, aperture), 
-                                    temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
@@ -629,9 +616,6 @@ def minimize(constraint, coefficients):
                     if costNew < cost:
                     
                         cost = costNew
-                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                    apertureError(apertureCoeffs, aperture), 
-                                    temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
@@ -641,9 +625,6 @@ def minimize(constraint, coefficients):
                     elif costNew <= cost and errorMax < errorMaxNew:
                     
                         cost = costNew
-                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                    apertureError(apertureCoeffs, aperture), 
-                                    temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
@@ -652,7 +633,9 @@ def minimize(constraint, coefficients):
         return("Error: tolerance could not be reached.")
         
     else:
-        
+        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
+                              apertureError(apertureCoeffs, aperture), 
+                              temperatureError(temperatureCoeffs, temp))
         return(cost, errorNew, tempOptimized, apertureOptimized, 
                     speedOptimized, printTime, volume, speedCoeffs, apertureCoeffs,
                     temperatureCoeffs)
