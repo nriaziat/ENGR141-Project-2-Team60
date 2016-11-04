@@ -322,7 +322,7 @@ def inputs():
                 
                 print("Tolerance must be greater than 0.")             
            
-            if tolerance < .00001:
+            if tolerance <= .009:
                 
                 toleranceConfirm = input("Tolerance may not be attainable. Use this value? (Y/N)\n").lower()
                 
@@ -702,4 +702,4 @@ def variability(dataList):
                    
 
 print(variability(minimize(inputs(), coefficients())))
-print("\nTime to find solution: %.3f seconds." % (float(time.time() - start_time)))
+print("\nComputation Time: %.3f seconds." % (float(time.time() - start_time)))
