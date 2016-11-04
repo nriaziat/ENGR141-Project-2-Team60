@@ -1,3 +1,4 @@
+Print Speed (mm/sec)	Dimensional Error (mm)		
 0.000	1.100		
 0.000	1.100		
 0.000	1.100		
@@ -69,4 +70,4 @@
 2.850	1.096		
 2.900	1.165		
 2.950	1.106		
-3.000	1.115
+3.000	1.115		Maximum printer head speed reached.
