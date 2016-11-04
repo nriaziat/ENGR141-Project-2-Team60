@@ -452,9 +452,9 @@ def minimize(constraint, coefficients):
             
                 temp = temp / 10
                 
-                errorMax = errorFunc(speedError(speedCoeffs, headSpeed) + .0005, 
-                                apertureError(apertureCoeffs, aperture) + .0005, 
-                                temperatureError(temperatureCoeffs, temp) + .0005)
+                errorMax = errorFunc(speedError(speedCoeffs, headSpeed + .0005), 
+                                apertureError(apertureCoeffs, aperture + .0005), 
+                                temperatureError(temperatureCoeffs, temp + .0005))
                 
                 # calculate cost if error is allowable
                 if errorMax < tolerance:    
@@ -528,9 +528,9 @@ def minimize(constraint, coefficients):
             
                 temp = temp / 100
                 
-                errorMax = errorFunc(speedError(speedCoeffs, headSpeed) + .0005, 
-                                apertureError(apertureCoeffs, aperture) + .0005, 
-                                temperatureError(temperatureCoeffs, temp) + .0005)
+                errorMax = errorFunc(speedError(speedCoeffs, headSpeed + .0005), 
+                                apertureError(apertureCoeffs, aperture + .0005), 
+                                temperatureError(temperatureCoeffs, temp + .0005))
                 
                 # calculate cost if error is allowable
                 if errorMax < tolerance:    
@@ -603,9 +603,9 @@ def minimize(constraint, coefficients):
             
                 temp = temp / 1000
                                 
-                errorMax = errorFunc(speedError(speedCoeffs, headSpeed) + .0005, 
-                                apertureError(apertureCoeffs, aperture) + .0005, 
-                                temperatureError(temperatureCoeffs, temp) + .0005)
+                errorMax = errorFunc(speedError(speedCoeffs, headSpeed + .0005), 
+                                apertureError(apertureCoeffs, aperture + .0005), 
+                                temperatureError(temperatureCoeffs, temp + .0005))
                 
                 # calculate cost if error is allowable
                 if errorMax < tolerance:    
