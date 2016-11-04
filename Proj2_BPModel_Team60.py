@@ -437,6 +437,7 @@ def minimize(constraint, coefficients):
     tempVals = range(40, 360)
     speedVals = range(1, 30)
     
+    print("\nCalculating...")
     # searches for all values in given ranges to .1 tolerance
     for aperture in apertureVals:
 
@@ -686,13 +687,14 @@ def variability(dataList):
                         temperatureError(temperatureCoeffs, tempOptimized))
                         
      
-        return('Speed: %.3f mm/s\n'
-               'Aperture: %.3f mm^2\n'
-               'Temperature: %.2f degrees Celsius\n'
-               'Cost: $%.2f (Expected Range: $%.2f to $%.2f)\n'
-               'Dimensional Error: %.5f mm (Expected Range: %.5f mm to '
+        return('\n------------Solution------------\n'
+               '\nSpeed: %.3f mm/s\n'
+               '\nAperture: %.3f mm^2\n'
+               '\nTemperature: %.2f degrees Celsius\n'
+               '\nCost: $%.2f (Expected Range: $%.2f to $%.2f)\n'
+               '\nDimensional Error: %.5f mm (Expected Range: %.5f mm to '
                                         '%.5f mm)\n'
-               'Production Time: %.3f minutes (Expected Range: %.3f '
+               '\nProduction Time: %.3f minutes (Expected Range: %.3f '
                                         'minutes to %.3f minutes'
                % (speedOptimized - .0005, apertureOptimized - .0005, 
                     tempOptimized - .0005, cost, costMax, costMin, errorNew,
@@ -700,4 +702,4 @@ def variability(dataList):
                    
 
 print(variability(minimize(inputs(), coefficients())))
-print("Time to find solution: %.3f seconds." % (float(time.time() - start_time)))
+print("\nTime to find solution: %.3f seconds." % (float(time.time() - start_time)))
