@@ -453,34 +453,40 @@ def minimize(constraint, coefficients):
             
                 temp = temp / 10
                 
-                # evaluates the functions with all given values
-                costNew = costFunc(volume, productionTime(printTime(volume,
+                errorMax = errorFunc(speedError(speedCoeffs, headSpeed) + .0005, 
+                                apertureError(apertureCoeffs, aperture) + .0005, 
+                                temperatureError(temperatureCoeffs, temp) + .0005)
+                
+                # calculate cost if error is allowable
+                if errorMax < tolerance:    
+                
+                    costNew = costFunc(volume, productionTime(printTime(volume, 
                                 headSpeed, aperture), cureTime(temp)))
-                error = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                apertureError(apertureCoeffs, aperture), 
-                                temperatureError(temperatureCoeffs, temp))
-                
-                # stores values if cost is lower than previous low cost 
-                #and error is acceptable
-                if costNew < cost and error < tolerance:
-                
-                    cost = costNew
-                    errorNew = error
-                    apertureOptimized = aperture
-                    tempOptimized = temp
-                    speedOptimized = headSpeed
-
-                # stores values with lower tolerance for equivalent cost    
-                elif costNew <= cost and error < errorNew:
+                    # store parameters if this is the new lowest cost           
+                    if costNew < cost:
                     
-                    cost = costNew
-                    errorNew = error
-                    apertureOptimized = aperture
-                    tempOptimized = temp
-                    speedOptimized = headSpeed
+                        cost = costNew
+                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
+                                    apertureError(apertureCoeffs, aperture), 
+                                    temperatureError(temperatureCoeffs, temp))
+                        apertureOptimized = aperture
+                        tempOptimized = temp
+                        speedOptimized = headSpeed 
+                        errorMaxNew = errorMax
+                        
+                    # store parameters if the cost is the same but error is lower   
+                    elif costNew <= cost and errorMax < errorMaxNew:
+                    
+                        cost = costNew
+                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
+                                    apertureError(apertureCoeffs, aperture), 
+                                    temperatureError(temperatureCoeffs, temp))
+                        apertureOptimized = aperture
+                        tempOptimized = temp
+                        speedOptimized = headSpeed 
                     
     # if no solution was found, try entire range again               
-    if cost == 1.7976931348623157e+308 and error > tolerance:
+    if cost == 1.7976931348623157e+308 and errorMax > tolerance:
     
         apertureVals = range(1, 20)
         tempVals = range(400, 3600)
@@ -529,28 +535,39 @@ def minimize(constraint, coefficients):
             
                 temp = temp / 100
                 
-                costNew = costFunc(volume, productionTime(printTime(volume,
-                                headSpeed, aperture), cureTime(temp)))
-                error = errorFunc(speedError(speedCoeffs, headSpeed), 
-                                apertureError(apertureCoeffs, aperture), 
-                                temperatureError(temperatureCoeffs, temp))
-
-                if costNew < cost and error < tolerance:
-                    cost = costNew
-                    errorNew = error
-                    apertureOptimized = aperture
-                    tempOptimized = temp
-                    speedOptimized = headSpeed
+                errorMax = errorFunc(speedError(speedCoeffs, headSpeed) + .0005, 
+                                apertureError(apertureCoeffs, aperture) + .0005, 
+                                temperatureError(temperatureCoeffs, temp) + .0005)
                 
-                elif costNew <= cost and error < errorNew:
+                # calculate cost if error is allowable
+                if errorMax < tolerance:    
+                
+                    costNew = costFunc(volume, productionTime(printTime(volume, 
+                                headSpeed, aperture), cureTime(temp)))
+                    # store parameters if this is the new lowest cost           
+                    if costNew < cost:
                     
-                    cost = costNew
-                    errorNew = error
-                    apertureOptimized = aperture
-                    tempOptimized = temp
-                    speedOptimized = headSpeed
+                        cost = costNew
+                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
+                                    apertureError(apertureCoeffs, aperture), 
+                                    temperatureError(temperatureCoeffs, temp))
+                        apertureOptimized = aperture
+                        tempOptimized = temp
+                        speedOptimized = headSpeed 
+                        errorMaxNew = errorMax
+                        
+                    # store parameters if the cost is the same but error is lower   
+                    elif costNew <= cost and errorMax < errorMaxNew:
                     
-    if cost == 1.7976931348623157e+308 and error > tolerance:
+                        cost = costNew
+                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
+                                    apertureError(apertureCoeffs, aperture), 
+                                    temperatureError(temperatureCoeffs, temp))
+                        apertureOptimized = aperture
+                        tempOptimized = temp
+                        speedOptimized = headSpeed 
+                    
+    if cost == 1.7976931348623157e+308 and errorMax > tolerance:
     
         apertureVals = range(1, 20)
         tempVals = range(4000, 5000)
@@ -612,7 +629,7 @@ def minimize(constraint, coefficients):
                     if costNew < cost:
                     
                         cost = costNew
-                        errorNew = error = errorFunc(speedError(speedCoeffs, headSpeed), 
+                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
                                     apertureError(apertureCoeffs, aperture), 
                                     temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
@@ -624,14 +641,14 @@ def minimize(constraint, coefficients):
                     elif costNew <= cost and errorMax < errorMaxNew:
                     
                         cost = costNew
-                        errorNew = error = errorFunc(speedError(speedCoeffs, headSpeed), 
+                        errorNew = errorFunc(speedError(speedCoeffs, headSpeed), 
                                     apertureError(apertureCoeffs, aperture), 
                                     temperatureError(temperatureCoeffs, temp))
                         apertureOptimized = aperture
                         tempOptimized = temp
                         speedOptimized = headSpeed 
                         
-    if cost == 1.7976931348623157e+308 and error > tolerance:
+    if cost == 1.7976931348623157e+308 and errorMax > tolerance:
         return("Error: tolerance could not be reached.")
         
     else:
